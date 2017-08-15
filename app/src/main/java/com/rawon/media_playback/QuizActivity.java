@@ -28,10 +28,18 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
 
-public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
+import android.util.Log;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+
+public class QuizActivity extends AppCompatActivity implements View.OnClickListener, ExoPlayer.EventListener {
 
     private static final int CORRECT_ANSWER_DELAY_MILLIS = 1000;
     private static final String REMAINING_SONGS_KEY = "remaining_songs";
+    private static final String TAG = QuizActivity.class.getSimpleName();
     private int[] mButtonIDs = {R.id.buttonA, R.id.buttonB, R.id.buttonC, R.id.buttonD};
     private ArrayList<Integer> mRemainingSampleIDs;
     private ArrayList<Integer> mQuestionSampleIDs;
@@ -107,6 +115,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             LoadControl loadControl = new DefaultLoadControl();
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl);
             mPlayerView.setPlayer(mExoPlayer);
+            mExoPlayer.addListener(this);
 
             // Prepare the MediaSource.
             String userAgent = Util.getUserAgent(this, "ClassicalMusicQuiz");
@@ -235,4 +244,35 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         releasePlayer();
     }
+
+    // ExoPlayer Event Listeners
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        if((playbackState == ExoPlayer.STATE_READY) && playWhenReady){
+            Log.d(TAG, "onPlayerStateChanged: PLAYING");
+        } else if((playbackState == ExoPlayer.STATE_READY)){
+            Log.d(TAG, "onPlayerStateChanged: PAUSED");
+        }
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+    }
+
 }
